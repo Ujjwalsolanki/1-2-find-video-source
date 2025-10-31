@@ -1,9 +1,11 @@
-# --- Example Usage (Requires a valid API Key) ---
+import textwrap
+
+from logger import logger
 from src.search_video import SerperVideoSearcher
 from src.transcriptions import Transcriber
 from src.semantic_search import SemanticSearcher
-from logger import logger
-import textwrap
+
+
 
 def generate_timed_youtube_url(video_id: str, timestamp_start: str) -> str:
     """
@@ -47,7 +49,12 @@ def generate_timed_youtube_url(video_id: str, timestamp_start: str) -> str:
 
 def display_search_results(result: dict, final_url: str):
     """
-    Prints the search results in a nicely formatted box on the terminal.
+    Display formatted search results for a matched YouTube video segment
+
+    :param result: Dictionary containing video match details including video ID, timestamp, and matched text snippet
+    :type result: dict
+    :param final_url: The generated YouTube URL to start playback at the matched timestamp
+    :type final_url: str
     """
     video_id = result['video_id']
     timestamp_start = result['timestamp_start']
@@ -81,15 +88,19 @@ def display_search_results(result: dict, final_url: str):
 
 if __name__ == '__main__':
     
-    # transcriber = Transcriber()
-    # transcriber.save_transcript_to_txt('UF8uR6Z6KLc')
-    # query = 'The only way to do great work is to love what you do'
     query = input("Please enter a snippet that you want to search on youtube : ")
+
+    video_searcher = SerperVideoSearcher()
+    video_id = video_searcher.find_earliest_video_details_by_snippet(query)
+
+    transcriber = Transcriber()
+    transcriber.save_transcript_to_json(video_id=video_id)
+
+
     semantic_Searcher = SemanticSearcher()
+    vector_store = semantic_Searcher.embed_and_store_faiss(video_id)
+    result = semantic_Searcher.semantic_search_and_time(video_id, vector_store=vector_store, query=query )
 
-    vector_store = semantic_Searcher.embed_and_store_faiss('UF8uR6Z6KLc')
-    result = semantic_Searcher.semantic_search_and_time("UF8uR6Z6KLc", vector_store=vector_store, query=query )
-
-    url = generate_timed_youtube_url(result["video_id"], result["timestamp_start"])
+    url = generate_timed_youtube_url(video_id, result["timestamp_start"])
 
     display_search_results(result=result, final_url=url)

@@ -14,11 +14,11 @@ class SerperVideoSearcher:
 
     def __init__(self, max_results: int = 10):
         """
-        Initializes the searcher.
-        
-        Args:
-            serper_api_key: Your Serper.dev API key.
-            max_results: The maximum number of videos to request from the API.
+        Initialize a SerperVideoSearcher with an optional maximum number of video results
+
+        :param self: Instance of SerperVideoSearcher
+        :param max_results: Maximum number of video results to retrieve
+        :type max_results: int
         """
         self.api_key = os.getenv("SERPER_API_KEY")
         self.base_url = "https://google.serper.dev/search"

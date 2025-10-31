@@ -8,15 +8,42 @@ from logger import logger
 class Transcriber:
 
     def __init__(self):
+        """
+        Initialize the Transcriber with YouTube transcript API and JSON formatter
+
+        :param self: Instance of the Transcriber class
+        """
         self.ytt_api = YouTubeTranscriptApi()
-        # Initialize the JSONFormatter
         self.formatter = JSONFormatter()
 
+    def prepare_video_id(self, video_id: str) -> str:
+        """
+        Escape a leading hyphen in a YouTube video ID by prefixing it with a backslash
 
-    def save_transcript_to_txt(self, video_id: str):
-        """Fetches the transcript for a video ID, combines the text, and saves it to a file."""
+        :param self: Instance of the Transcriber class
+        :param video_id: YouTube video identifier to prepare
+        :type video_id: str
+        :return: Video ID with a leading hyphen escaped if necessary
+        :rtype: str
+        """
+        if video_id.startswith('-'):
+            logger.info('Video is starts with -')
+            # Add a backslash to escape the leading hyphen
+            return '\\' + video_id
+        return video_id
+
+    def save_transcript_to_json(self, video_id: str):
+        """
+        Fetch the transcript for a YouTube video and save it as a JSON file
+
+        :param self: Instance of the Transcriber class
+        :param video_id: YouTube video identifier to fetch the transcript for
+        :type video_id: str
+        """
         try:
+            logger.info('save transcript started')
             # Fetch the transcript for the given video ID
+            video_id = self.prepare_video_id(video_id)
             transcript = self.ytt_api.fetch(video_id)
             logger.info(transcript)
             # Format the transcript into a JSON string
